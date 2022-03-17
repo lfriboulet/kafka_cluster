@@ -1,0 +1,94 @@
+---
+version: '3'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:6.0.0
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "32181:32181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 32181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - ./zk-data:/var/lib/zookeeper/data
+      - ./zk-txn-logs:/var/lib/zookeeper/log
+
+  kafka:
+    image: confluentinc/cp-enterprise-kafka:6.0.0
+    hostname: kafka
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "29092:29092"
+    env_file:
+      - ./env/kafka_common.env
+      - ./env/kafka1_custom.env
+    volumes:
+    - ./kafka1-data:/var/lib/kafka/data
+
+  kafka2:
+    image: confluentinc/cp-enterprise-kafka:6.0.0
+    hostname: kafka2
+    container_name: kafka2
+    depends_on:
+      - zookeeper
+    ports:
+      - "29093:29093"
+    env_file:
+      - ./env/kafka_common.env
+      - ./env/kafka2_custom.env
+    volumes:
+      - ./kafka2-data:/var/lib/kafka/data
+
+  kafka3:
+    image: confluentinc/cp-enterprise-kafka:6.0.0
+    hostname: kafka3
+    container_name: kafka3
+    depends_on:
+      - zookeeper
+    ports:
+      - "29094:29094"
+    env_file:
+      - ./env/kafka_common.env
+      - ./env/kafka3_custom.env
+    volumes:
+      - ./kafka3-data:/var/lib/kafka/data
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:6.0.0
+    hostname: schema-registry
+    container_name: schema-registry
+    depends_on:
+      - zookeeper
+      - kafka
+      - kafka2
+      - kafka3
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper:32181
+    ports:
+      - "8081:8081"
+
+  kafka-admin:
+    image: tchiotludo/akhq
+    hostname: kafka-admin
+    container_name: kafka-admin
+    environment:
+      AKHQ_CONFIGURATION: |
+        akhq:
+          connections:
+            docker-kafka-server:
+              properties:
+                bootstrap.servers: "kafka:9092, kafka2:9092, kafkka3:9092"
+              schema-registry:
+                url: "http://schema-registry:8081"
+    ports:
+      - 8095:8080
+    links:
+      - kafka
+      - kafka2
+      - kafka3
+      - schema-registry

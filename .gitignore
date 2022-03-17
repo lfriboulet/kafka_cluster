@@ -1,0 +1,6 @@
+.idea/
+kafka1-data/*
+kafka2-data/*
+kafka3-data/*
+zk-data/*
+zk-txn-logs/*
