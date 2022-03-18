@@ -26,8 +26,6 @@ services:
     env_file:
       - ./env/kafka_common.env
       - ./env/kafka1_custom.env
-    volumes:
-    - ./kafka1-data:/var/lib/kafka/data
 
   kafka2:
     image: confluentinc/cp-enterprise-kafka:6.0.0
@@ -40,8 +38,6 @@ services:
     env_file:
       - ./env/kafka_common.env
       - ./env/kafka2_custom.env
-    volumes:
-      - ./kafka2-data:/var/lib/kafka/data
 
   kafka3:
     image: confluentinc/cp-enterprise-kafka:6.0.0
@@ -54,8 +50,6 @@ services:
     env_file:
       - ./env/kafka_common.env
       - ./env/kafka3_custom.env
-    volumes:
-      - ./kafka3-data:/var/lib/kafka/data
 
   schema-registry:
     image: confluentinc/cp-schema-registry:6.0.0
@@ -82,7 +76,7 @@ services:
           connections:
             docker-kafka-server:
               properties:
-                bootstrap.servers: "kafka:9092, kafka2:9092, kafkka3:9092"
+                bootstrap.servers: "kafka:9092, kafka2:9092, kafka3:9092"
               schema-registry:
                 url: "http://schema-registry:8081"
     ports:
