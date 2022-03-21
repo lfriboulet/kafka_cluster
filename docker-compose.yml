@@ -3,7 +3,7 @@ version: '3'
 
 services:
   zookeeper:
-    image: confluentinc/cp-zookeeper:6.0.0
+    image: confluentinc/cp-zookeeper:7.0.1
     hostname: zookeeper
     container_name: zookeeper
     ports:
@@ -16,7 +16,7 @@ services:
       - ./zk-txn-logs:/var/lib/zookeeper/log
 
   kafka:
-    image: confluentinc/cp-enterprise-kafka:6.0.0
+    image: confluentinc/cp-enterprise-kafka:7.0.1
     hostname: kafka
     container_name: kafka
     depends_on:
@@ -28,7 +28,7 @@ services:
       - ./env/kafka1_custom.env
 
   kafka2:
-    image: confluentinc/cp-enterprise-kafka:6.0.0
+    image: confluentinc/cp-enterprise-kafka:7.0.1
     hostname: kafka2
     container_name: kafka2
     depends_on:
@@ -40,7 +40,7 @@ services:
       - ./env/kafka2_custom.env
 
   kafka3:
-    image: confluentinc/cp-enterprise-kafka:6.0.0
+    image: confluentinc/cp-enterprise-kafka:7.0.1
     hostname: kafka3
     container_name: kafka3
     depends_on:
@@ -52,7 +52,7 @@ services:
       - ./env/kafka3_custom.env
 
   schema-registry:
-    image: confluentinc/cp-schema-registry:6.0.0
+    image: confluentinc/cp-schema-registry:7.0.1
     hostname: schema-registry
     container_name: schema-registry
     depends_on:
@@ -62,7 +62,8 @@ services:
       - kafka3
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper:32181
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:9092,PLAINTEXT://kafka2:9092,PLAINTEXT://kafka3:9092
     ports:
       - "8081:8081"
 
