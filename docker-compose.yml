@@ -1,9 +1,8 @@
 ---
-version: '3'
 
 services:
   zookeeper:
-    image: confluentinc/cp-zookeeper:7.0.1
+    image: confluentinc/cp-zookeeper:7.7.1
     hostname: zookeeper
     container_name: zookeeper
     ports:
@@ -15,10 +14,10 @@ services:
       - ./zk-data:/var/lib/zookeeper/data
       - ./zk-txn-logs:/var/lib/zookeeper/log
 
-  kafka:
-    image: confluentinc/cp-enterprise-kafka:7.0.1
-    hostname: kafka
-    container_name: kafka
+  kafka1:
+    image: confluentinc/cp-enterprise-kafka:7.7.1
+    hostname: kafka1
+    container_name: kafka1
     depends_on:
       - zookeeper
     ports:
@@ -28,7 +27,7 @@ services:
       - ./env/kafka1_custom.env
 
   kafka2:
-    image: confluentinc/cp-enterprise-kafka:7.0.1
+    image: confluentinc/cp-enterprise-kafka:7.7.1
     hostname: kafka2
     container_name: kafka2
     depends_on:
@@ -40,7 +39,7 @@ services:
       - ./env/kafka2_custom.env
 
   kafka3:
-    image: confluentinc/cp-enterprise-kafka:7.0.1
+    image: confluentinc/cp-enterprise-kafka:7.7.1
     hostname: kafka3
     container_name: kafka3
     depends_on:
@@ -52,18 +51,18 @@ services:
       - ./env/kafka3_custom.env
 
   schema-registry:
-    image: confluentinc/cp-schema-registry:7.0.1
+    image: confluentinc/cp-schema-registry:7.7.1
     hostname: schema-registry
     container_name: schema-registry
     depends_on:
       - zookeeper
-      - kafka
+      - kafka1
       - kafka2
       - kafka3
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:9092,PLAINTEXT://kafka2:9092,PLAINTEXT://kafka3:9092
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka1:9092,PLAINTEXT://kafka2:9092,PLAINTEXT://kafka3:9092
     ports:
       - "8081:8081"
 
@@ -77,13 +76,13 @@ services:
           connections:
             docker-kafka-server:
               properties:
-                bootstrap.servers: "kafka:9092, kafka2:9092, kafka3:9092"
+                bootstrap.servers: "kafka1:9092, kafka2:9092, kafka3:9092"
               schema-registry:
                 url: "http://schema-registry:8081"
     ports:
       - 8095:8080
     links:
-      - kafka
+      - kafka1
       - kafka2
       - kafka3
       - schema-registry
